@@ -25,13 +25,13 @@
   </style>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="pg-app-wrapper"></div>
+    <div id="pg-app-wrapper" class="gamalon-app"></div>
   </body>
   <script src="facet-chat.js"></script>
   <script>
-    const project_name = '######';  // Replace with your hackathon project identifier
+    const project_name = 'Bookmark2';  // Replace with your hackathon project identifier
     const serverURL = 'https://app.productgenius.io';  // Replace with your hackathon server URL
-    const access_token = '######';  // Replace with your hackathon access token
+    const access_token = '74f1bfba-2dc1-44e6-b1f5-7aab00f6f3d8';  // Replace with your hackathon access token
 
     const defaultDesignSettings = {
       merchant: '',
@@ -48,8 +48,35 @@
     const settings = fetch(`${serverURL}/shopify/api/frontend_config/${project_name}`)
     .then(response => response.json())
     .then(data => {
-      const designSettings = data?.design.style || defaultDesignSettings;
-      delete designSettings['global'];
+      const designSettings = data?.design?.style || defaultDesignSettings;
+
+      // Inject a starter theme by overriding CSS variables at runtime.
+      // You can customize these values freely.
+      const myCss = `
+        .gamalon-app {
+          /* Theme colors */
+          --pg-color-theme: #1e90ff;
+          --pg-color-text: #111111;
+          --pg-color-bk-feed: #ffffff;
+          --pg-color-bk-card: #ffffff;
+          --pg-color-bk-btn: #1e90ff;
+          --pg-color-btn: #ffffff;
+
+          /* Rounding & spacing */
+          --pg-border-radius-card: 10px;
+          --pg-border-radius-btn: 6px;
+          --pg-padding-card: 8px;
+          --pg-gap-feed: 12px;
+
+          /* Typography */
+          --pg-font-app: 'Inter', Arial, sans-serif;
+          --pg-font-card-title: normal 600 16px/20px var(--pg-font-app);
+          --pg-font-card-subtitle: normal 400 14px/18px var(--pg-font-app);
+        }
+      `;
+
+      // Preserve any server-provided global CSS and append ours
+      designSettings.global = [designSettings.global, myCss].filter(Boolean).join('\n');
       GAMALON.init({
       container: '#pg-app-wrapper',
       organizationId: project_name,  
